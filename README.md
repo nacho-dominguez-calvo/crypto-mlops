@@ -5,7 +5,7 @@ End-to-end MLOps pipeline for cryptocurrency price prediction using AWS and mode
 ## 🏗️ Architecture
 
 - **Data Ingestion**: CoinGecko API
-- **ML Pipeline**: LSTM model for time series prediction  
+- **Prophet Pipeline**: LSTM model for time series prediction  
 - **Infrastructure**: AWS (ECS, RDS, S3, CloudWatch)
 - **CI/CD**: GitHub Actions
 - **Monitoring**: MLflow + CloudWatch
@@ -29,13 +29,14 @@ End-to-end MLOps pipeline for cryptocurrency price prediction using AWS and mode
 ## 📊 Project Status
 
 - [x] Infrastructure setup
-- [ ] Data pipeline
-- [ ] ML model training
-- [ ] API development
+- [x] Data pipeline
+- [x] ML model training
+- [x] API development
 - [ ] CI/CD pipeline
 - [ ] Monitoring & alerting
 
 ## 👨‍💻 Author
 
 Portfolio project demonstrating MLOps and AWS skills.
+
 EOF
