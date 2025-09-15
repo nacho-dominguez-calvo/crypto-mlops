@@ -1,3 +1,4 @@
+#src/data/ingestion.py
 import requests
 import time
 import logging
@@ -14,7 +15,6 @@ load_dotenv()
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 @dataclass
 class CoinGeckoConfig:
     """Configuration for CoinGecko API client"""

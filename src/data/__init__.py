@@ -1,3 +1,4 @@
+# src/data/__init__.com
 from .ingestion import DataIngestionPipeline, CoinGeckoClient, CoinGeckoConfig
 from .processor import DataProcessor
 

@@ -69,3 +69,14 @@ class S3Storage:
         except ClientError as e:
             logger.error(f"List failed: {e}")
             return []
+    def write_bytes(self, s3_key: str, data: bytes) -> None:
+        """
+        Write raw bytes to S3 at the given key.
+        """
+        try:
+            self.s3_client.put_object(Bucket=self.bucket_name, Key=s3_key, Body=data)
+            logger.info(f"Saved object {s3_key} to s3://{self.bucket_name}")
+        except Exception as e:
+            logger.error(f"Write failed for {s3_key}: {e}")
+            raise
+

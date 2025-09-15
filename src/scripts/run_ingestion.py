@@ -2,6 +2,7 @@
 from src.data import DataIngestionPipeline, DataProcessor
 from src.data.storage import S3Storage
 import pandas as pd
+import os
 
 def main():
     # ----------------------------
@@ -19,7 +20,7 @@ def main():
     # ----------------------------
     # 3️⃣ Initialize S3 storage
     # ----------------------------
-    s3_bucket = "mlops-terraform-state-ignacio-480415624749"
+    s3_bucket = os.getenv("AWS_BUCKET_NAME")
     storage = S3Storage(bucket_name=s3_bucket)
 
     try:

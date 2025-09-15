@@ -3,16 +3,16 @@
 import pandas as pd
 import numpy as np
 import logging
-from typing import Dict, List, Optional
+from typing import Optional
 from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
 @dataclass
 class MarketFeatureConfig:
-    """Configuration for market features calculation."""
+    """Configuration for market feature calculation."""
     dom_lookback: int = 14  # Days for dominance moving average
-    volatility_window: int = 30 # Days for market volatility calculation
+    volatility_window: int = 30  # Days for market volatility calculation
 
 class MarketFeaturePipeline:
     """
@@ -23,7 +23,7 @@ class MarketFeaturePipeline:
 
     def generate_features(self, historical_df: pd.DataFrame) -> pd.DataFrame:
         """
-        Generates market-level features.
+        Generate market-level features.
 
         Args:
             historical_df: A DataFrame containing historical data for multiple coins,
@@ -38,36 +38,33 @@ class MarketFeaturePipeline:
 
         logger.info("Generating market features...")
 
-        # Ensure correct data types
+        # Ensure correct data types and sorting
         df = historical_df.copy()
         df['timestamp'] = pd.to_datetime(df['timestamp'])
         df = df.sort_values(['coin_id', 'timestamp'])
 
         # 1. Calculate Market Dominance
-        # Calculate total market cap for each day
+        # Total market cap for each timestamp
         market_cap_total = df.groupby('timestamp')['market_cap'].sum().reset_index()
         market_cap_total.rename(columns={'market_cap': 'total_market_cap'}, inplace=True)
         
-        # Calculate individual coin dominance
+        # Individual coin dominance
         df = df.merge(market_cap_total, on='timestamp', how='left')
         df['dominance_ratio'] = df['market_cap'] / df['total_market_cap']
 
-        # 2. Calculate Market Volatility (using daily returns of total market)
+        # 2. Calculate Market Volatility (using daily returns of total market cap)
         market_cap_total['market_returns'] = market_cap_total['total_market_cap'].pct_change()
-        
-        # Calculate standard deviation of returns (volatility) over a rolling window
         market_cap_total['market_volatility'] = market_cap_total['market_returns'].rolling(
             window=self.config.volatility_window
         ).std()
 
-        # 3. Pivot the dominance data to have coins as columns
+        # 3. Pivot dominance data to have coins as columns
         dom_pivot_df = df.pivot(
             index='timestamp',
             columns='coin_id',
             values='dominance_ratio'
         ).add_prefix('market_dom_')
         
-        # Reset index to merge
         dom_pivot_df.reset_index(inplace=True)
         
         # 4. Combine all features into a single DataFrame
@@ -81,14 +78,11 @@ class MarketFeaturePipeline:
         
         return final_df
 
+
 if __name__ == '__main__':
-    # Este es un ejemplo de cómo se usaría el pipeline
-    # En un pipeline real, historical_df vendría del paso de procesamiento.
+    # Example usage. In a real pipeline, historical_df would come from the preprocessing step.
     
-    # Crea un DataFrame de ejemplo con múltiples monedas
-    coins_data = []
-    
-    # Datos para Bitcoin
+    # Create a sample DataFrame with multiple coins
     dates = pd.to_datetime(pd.date_range(end=pd.Timestamp.now(), periods=100))
     btc_mc = np.random.rand(100) * 1e11
     eth_mc = np.random.rand(100) * 5e10
@@ -98,14 +92,14 @@ if __name__ == '__main__':
     
     historical_df_example = pd.concat([btc_df, eth_df], ignore_index=True)
 
-    # Inicializa y ejecuta el pipeline de características de mercado
+    # Initialize and run the market feature pipeline
     market_pipeline = MarketFeaturePipeline()
     market_features_df = market_pipeline.generate_features(historical_df_example)
     
     if not market_features_df.empty:
-        print("\nDataFrame de características de mercado:")
+        print("\n=== MARKET FEATURES DATAFRAME ===")
         print(market_features_df.head())
-        print(f"Columnas: {list(market_features_df.columns)}")
-        print(f"Filas: {len(market_features_df)}")
+        print(f"Columns: {list(market_features_df.columns)}")
+        print(f"Rows: {len(market_features_df)}")
     else:
-        print("No se pudieron generar las características de mercado.")
+        print("Market features could not be generated.")
